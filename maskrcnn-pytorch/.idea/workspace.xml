@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a7bec969-0717-4251-b359-299d24f00c49" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/maskrcnn/model/rpn/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/maskrcnn/model/rpn/anchor_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/maskrcnn/model/rpn/rpn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/run-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maskrcnn/src/cpu/ROLAlign_cpu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/maskrcnn/src/cpu/ROLAlign_cpu.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/.ipynb_checkpoints/balanced_positive_negative_sampler.-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/.ipynb_checkpoints/box_coder-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/backbone/fpn.py" beforeDir="false" afterPath="$PROJECT_DIR$/maskrcnn/model/backbone/fpn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/balanced_positive_negative_sampler..ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/box_coder.py" beforeDir="false" afterPath="$PROJECT_DIR$/maskrcnn/model/box_coder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/maskrcnn/model/registry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/rpn/.ipynb_checkpoints/loss-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/rpn/.ipynb_checkpoints/rpn-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/rpn/loss.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/rpn/rpn.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/untitled.txt" beforeDir="false" afterPath="$PROJECT_DIR$/maskrcnn/model/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/maskrcnn/model/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/structures/bounding_box.py" beforeDir="false" afterPath="$PROJECT_DIR$/structures/bounding_box.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/maskrcnn/model/balanced_positive_negative_sampler..ipynb" />
+        <option value="$PROJECT_DIR$/maskrcnn/model/__init__.py" />
+        <option value="$PROJECT_DIR$/maskrcnn/model/rpn/rpn.py" />
+        <option value="$PROJECT_DIR$/maskrcnn/model/rpn/test.py" />
+        <option value="$PROJECT_DIR$/maskrcnn/model/rpn/anchor_generator.py" />
+        <option value="$PROJECT_DIR$/structures/bounding_box.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="260" />
+    <option name="y" value="20" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="maskrcnn-pytorch" type="b2602c69:ProjectViewProjectNode" />
+              <item name="maskrcnn-pytorch" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="maskrcnn-pytorch" type="b2602c69:ProjectViewProjectNode" />
+              <item name="maskrcnn-pytorch" type="462c0819:PsiDirectoryNode" />
+              <item name="maskrcnn" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="maskrcnn-pytorch" type="b2602c69:ProjectViewProjectNode" />
+              <item name="maskrcnn-pytorch" type="462c0819:PsiDirectoryNode" />
+              <item name="structures" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.ChangelistConflict" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\owner\Machine-Learning\maskrcnn-pytorch\structures" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\owner\Machine-Learning\maskrcnn-pytorch\maskrcnn" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="maskrcnn-pytorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/maskrcnn/model/rpn" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/maskrcnn/model/rpn/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.test" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a7bec969-0717-4251-b359-299d24f00c49" name="Default Changelist" comment="" />
+      <created>1547213183746</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1547213183746</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17913593" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32936078" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32936078" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/maskrcnn/model/balanced_positive_negative_sampler..ipynb" />
+    <entry file="file://$PROJECT_DIR$/maskrcnn/model/box_coder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="7" column="10" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/maskrcnn/model/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/structures/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/maskrcnn/model/rpn/anchor_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="80" column="27" lean-forward="true" selection-start-line="80" selection-start-column="27" selection-end-line="80" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/maskrcnn/model/rpn/rpn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="93">
+          <caret line="3" column="51" selection-start-line="3" selection-start-column="51" selection-end-line="3" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/structures/bounding_box.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="36" lean-forward="true" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/maskrcnn/model/rpn/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="5" column="7" selection-start-line="5" selection-start-column="7" selection-end-line="5" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

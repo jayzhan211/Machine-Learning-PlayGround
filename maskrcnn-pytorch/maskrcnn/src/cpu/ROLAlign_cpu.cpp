@@ -105,5 +105,138 @@ void pre_calc_for_bilinear_interpolate(
     }
 
 template <typename T>
-void ROIAlignForward_cpu_kernel
+void ROIAlignForward_cpu_kernel(
+    const int nthreads,
+    const T* bottom_data,
+    const T& spatial_scale,
+    const int channels,
+    const int height,
+    const int width,
+    const int pooled_height,
+    const int pooled_width,
+    const int sampling_ratio,
+    const T* bottom_rois,
+    T* top_data){
+        int roi_cols = 5;
+
+        int n_rois = nthreads / channels / pooled_width / pooled_height;
+
+        for (int n = 0; n < n_rois; n++){
+            int index_n = n * channels * pooled_width * pooled_height;
+            const T* offset_bottom_rois = bottom_rois + n * roi_cols;
+            int roi_batch_ind = 0;
+            if(roi_cols == 5){
+                roi_batch_ind = offset_bottom_rois[0];
+                offset_bottom_rois++;
+            }
+
+            T roi_start_w = offset_bottom_rois[0] * spatial_scale;
+            T roi_start_h = offset_bottom_rois[1] * spatial_scale;
+            T roi_end_w = offset_bottom_rois[2] * spatial_scale;
+            T roi_end_h = offset_bottom_rois[3] * spatial_scale;
+
+            T roi_width = std::max(roi_end_w - roi_start_w, (T)1.);
+            T roi_height = std::max(roi_end_h - roi_start_h, (T)1.);
+            T bin_size_w = static_cast<T>(roi_width) / static_cast<T>(pooled_width);
+            T bin_size_h = static_cast<T>(roi_height) / static_cast<T>(pooled_height);
+
+            int roi_bin_grid_h = (sampling_ratio > 0) ? sampling_ratio : ceil(roi_height / pooled_height);
+            int roi_bin_grid_w = (sampling_ratio > 0) ? sampling_ratio : ceil(roi_width / pooled_width);
+
+            const T count = roi_bin_grid_h * roi_bin_grid_w;
+
+            std::vector<PreCalc<T>> pre_calc(
+                roi_bin_grid_w * roi_bin_grid_h * pooled_width *pooled_height;
+            );
+            pre_calc_for_bilinear_interpolate(
+                height,
+                width,
+                pooled_height,
+                pooled_width,
+                roi_bin_grid_h,
+                roi_bin_grid_w,
+                roi_start_h,
+                roi_start_w,
+                bin_size_h,
+                bin_size_w,
+                roi_bin_grid_h,
+                roi_bin_grid_w,
+                pre_calc
+            );
+
+            for(int c = 0; c < channels; c++){
+                int index_n_c = index_n + c * pooled_height *pooled_width;
+                const T* offset_bottom_data = bottom_data + (roi_batch_ind * channels + c) * height * width;
+                int pre_calc_index = 0;
+
+                for (int ph = 0; ph < pooled_height; ph++) {
+                    for (int pw = 0; pw < pooled_width; pw++) {
+                        int index = index_n_c + ph * pooled_width +pw;
+
+                        T output_val = 0.;
+                        for (int iy = 0; iy < roi_bin_grid_h; iy++) {
+                            for (int ix = 0; ix < roi_bin_grid_w; ix++) {
+                                PreCalc<T> pc = pre_calc[pre_calc_index];
+                                output_val += pc.w1 * offset_bottom_data[pc.pos1] +
+                                    pc.w2 * offset_bottom_data[pc.pos2] +
+                                    pc.w3 * offset_bottom_data[pc.pos3] +
+                                    pc.w4 * offset_bottom_data[pc.pos4];
+
+                                pre_calc_index += 1;
+
+
+                            }
+                        }
+                        output_val /= count;
+                        top_data[index] = output_val;
+
+                    } //pw
+
+                } //ph
+            } //c
+
+        } //n
+
+    }
+
+at::Tensor ROIAlign_forward_cpu(const at::Tensor& input,
+                                const at::Tensor& rois,
+                                const float spatial_scale,
+                                const int pooled_height,
+                                const int pooled_width,
+                                const int sampling_ratio){
+    AT_ASSERTM(!input.type().is_cuda(), "input must be CPU tensor");
+    AT_ASSERTM(!rois.type().is_cuda(), "rois must be CPU tensor");
+
+    auto num_rois = rois.size(0);
+    auto channels = input.size(1);
+    auto height = input.size(2);
+    auto width = input.size(3);
+
+    auto output = at::empty({num_rois, channels, pooled_height, pooled_width}, input.options());
+    auto output_size = num_rois * pooled_height *pooled_width * channels;
+
+    if(output.numel() == 0){
+        return output;
+
+    }
+    AT_DISPATCH_FLOATING_TYPES(input.type(), "ROIAlign_forward", [&] {
+        ROIAlignForward_cpu_kernel<scalar_t>(
+            output_size,
+            input.data<scalar_t>(),
+            spatial_scale,
+            channels,
+            height,
+            width,
+            pooled_height,
+            pooled_width,
+            sampling_ratio,
+            rois.data<scalar_t>(),
+            output.data<scalar_t>());
+        )
+
+    });
+    return output;
+}
+
 
