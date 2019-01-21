@@ -13,7 +13,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/model/pwc_net.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6275">
+            <state relative-caret-position="833">
               <caret line="255" column="17" selection-start-line="255" selection-start-column="17" selection-end-line="255" selection-end-column="17" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
@@ -25,7 +25,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="317">
+            <state relative-caret-position="988">
               <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
@@ -37,8 +37,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/correlation/correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="2" column="11" lean-forward="true" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+            <state relative-caret-position="38">
+              <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -175,16 +175,19 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/correlation/setup.py" />
-    <entry file="file://$PROJECT_DIR$/correlation/correlation.py">
+    <entry file="file://$PROJECT_DIR$/model/pwc_net.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="2" column="11" lean-forward="true" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+        <state relative-caret-position="833">
+          <caret line="255" column="17" selection-start-line="255" selection-start-column="17" selection-end-line="255" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/model/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
+        <state relative-caret-position="988">
           <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
@@ -192,13 +195,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/model/pwc_net.py">
+    <entry file="file://$PROJECT_DIR$/correlation/correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6275">
-          <caret line="255" column="17" selection-start-line="255" selection-start-column="17" selection-end-line="255" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="38">
+          <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
         </state>
       </provider>
     </entry>
