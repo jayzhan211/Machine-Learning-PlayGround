@@ -1,5 +1,9 @@
 import functools
 import torch.nn as nn
+import torch
+from torch.nn import init
+
+
 ###############################################################################
 # Helper Functions
 ###############################################################################
@@ -23,14 +27,58 @@ def get_norm_layer(norm_type='instance'):
     elif norm_type == 'instance':
         norm_layer = functools.partial(nn.InstanceNorm2d, affine=False, track_running_stats=False)
     elif norm_type == 'none':
-        norm_layer = lambda x: Identity()
+        norm_layer = Identity
     else:
         raise NotImplementedError('normalization layer [{}] is not found'.format(norm_type))
     return norm_layer
 
 
-class ResnetBlock(object):
-    pass
+class ResnetBlock(nn.Module):
+    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        super(ResnetBlock, self).__init__()
+        self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
+
+    def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        """
+        Construct a convolution block
+        :param dim: number of channels in conv_block
+        :param padding_type: reflect | replicate | zero
+        :param norm_layer:
+        :param use_dropout:
+        :param use_bias:
+        :return:
+        """
+        conv_block = []
+        if padding_type == 'reflect':
+            conv_block += [nn.ReflectionPad2d(1)]
+        elif padding_type == 'replicate':
+            conv_block += [nn.ReplicationPad2d(1)]
+        elif padding_type == 'zero':
+            p = 1
+        else:
+            raise NotImplementedError('padding [{}] is not implemented'.format(padding_type))
+
+        conv_block += [nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias), norm_layer(dim), nn.ReLU(True)]
+
+        if use_dropout:
+            conv_block += [nn.Dropout(0.5)]
+
+        if padding_type == 'reflect':
+            conv_block += [nn.ReflectionPad2d(1)]
+        elif padding_type == 'replicate':
+            conv_block += [nn.ReplicationPad2d(1)]
+        elif padding_type == 'zero':
+            p = 1
+        else:
+            raise NotImplementedError('padding [{}] is not implemented'.format(padding_type))
+
+        conv_block += [nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias), norm_layer(dim)]
+
+        return nn.Sequential(*conv_block)
+
+    def forward(self, x):
+        out = x + self.conv_block(x)
+        return out
 
 
 class ResnetGenerator(nn.Module):
@@ -42,7 +90,7 @@ class ResnetGenerator(nn.Module):
                  n_blocks=6,
                  padding_type='reflect'):
         """
-
+        Define a ResNet Block
         :param input_nc:
         :param output_nc:
         :param ngf:
@@ -95,15 +143,56 @@ class ResnetGenerator(nn.Module):
     def forward(self, input):
         return self.model(input)
 
-def deinf_G(input_nc,
-            output_nc,
-            ngf,
-            net_G,
-            norm='batch',
-            use_dropout=False,
-            init_type='normal',
-            init_gain=0.02,
-            gpu_ids=[]):
+
+def init_weights(net, init_type='normal', init_gain=0.02):
+    def init_func(m):
+        classname = m.__class__.__name__
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+            if init_type == 'normal':
+                init.normal_(m.weight.data, 0.0, init_gain)
+            elif init_type == 'xavier':
+                init.xavier_normal_(m.weight.data, gain=init_gain)
+            elif init_type == 'kaiming':
+                init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
+            elif init_type == 'orthogonal':
+                init.orthogonal_(m.weight.data, gain=init_gain)
+            else:
+                raise NotImplementedError('initialization method [{}] is not implemented'.format(init_type))
+            init.constant_(m.bias.data, 0.0)
+        elif isinstance(m, nn.BatchNorm2d):
+            init.normal_(m.weight.data, 1.0, init_gain)
+            init.constant_(m.bias.data, 0.0)
+
+        print('initialize network with {}'.format(init_type))
+        net.apply(init_func)
+
+
+def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
+    """
+    Use Gpu/Cpu and initialize weight
+    :param net:
+    :param init_type: normal | xavier | kaiming | orthogonal
+    :param init_gain: scaling factor
+    :param gpu_ids:
+    :return:
+    """
+    if len(gpu_ids) > 0:
+        assert torch.cuda.is_available()
+        net.to(gpu_ids[0])
+        net = torch.nn.DataParallel(net, gpu_ids)
+    init_weights(net, init_type, init_gain=init_gain)
+    return net
+
+
+def define_g(input_nc,
+             output_nc,
+             ngf,
+             net_g,
+             norm='batch',
+             use_dropout=False,
+             init_type='normal',
+             init_gain=0.02,
+             gpu_ids=[]):
     """
 
     :param input_nc: number of channels in input_images
@@ -120,11 +209,144 @@ def deinf_G(input_nc,
     use ReLU for non-linearity
     """
     norm_layer = get_norm_layer(norm_type=norm)
-    if netG == 'resnet_9blocks':
+    if net_g == 'resnet_9blocks':
         net = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=9)
-    elif netG == 'resnet_6blocks':
+    elif net_g == 'resnet_6blocks':
         net = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=6)
     else:
-        raise NotImplementedError('Generator model name [{}] is not recognized'.format(netG))
+        raise NotImplementedError('Generator model name [{}] is not recognized'.format(net_g))
     return init_net(net, init_type, init_gain, gpu_ids)
-    
+
+
+class NLayerDiscriminator(nn.Module):
+    def __init__(self,
+                 input_nc,
+                 ndf=64,
+                 n_layers=3,
+                 norm_layer=nn.BatchNorm2d):
+        """
+        PatchGAN discriminator
+        :param input_nc:
+        :param ndf:
+        :param n_layers:
+        :param norm_layer:
+        """
+        super(NLayerDiscriminator, self).__init__()
+
+        if type(norm_layer) == functools.partial:
+            use_bias = norm_layer.func == nn.InstanceNorm2d
+        else:
+            use_bias = norm_layer == nn.InstanceNorm2d
+
+        kernel_size = 4
+        padding = 1
+        sequence = [
+            nn.Conv2d(input_nc, ndf, kernel_size=kernel_size, stride=2, padding=padding),
+            nn.LeakyReLU(0.2, True)
+        ]
+        nf = 1
+        nf_prev = 1
+        for i in range(1, n_layers):
+            nf_prev = nf
+            nf = min(nf * 2, 8)
+            sequence += [
+                nn.Conv2d(ndf * nf_prev, ndf * nf, kernel_size=kernel_size, stride=2, padding=padding, bias=use_bias),
+                norm_layer(ndf * nf),
+                nn.LeakyReLU(0.2, True)
+            ]
+        nf_prev = nf
+        nf = min(nf * 2, 8)
+        sequence += [
+            nn.Conv2d(ndf * nf_prev, ndf * nf, kernel_size=kernel_size, stride=1, padding=padding, bias=use_bias),
+            norm_layer(ndf * nf),
+            nn.LeakyReLU(0.2, True),
+            nn.Conv2d(ndf * nf, 1, kernel_size=kernel_size, stride=1, padding=padding)
+        ]
+        self.model = nn.Sequential(*sequence)
+
+    def forward(self, x):
+        return self.model(x)
+
+
+def define_d(input_nc,
+             ndf,
+             net_d,
+             n_layers_d=3,
+             norm='batch',
+             init_type='normal',
+             init_gain=0.02,
+             gpu_ids=None):
+    """
+    Discriminator,  it uses leaky relu
+    :param input_nc:
+    :param ndf: number of filter in the first conv layer
+    :param net_d: basic | pixel | n_layers
+    :param n_layers_d:
+    :param norm:
+    :param use_dropout:
+    :param init_type:
+    :param init_gain:
+    :param gpu_ids:
+    :return:
+    """
+    if gpu_ids is None:
+        gpu_ids = []
+    net = None
+    norm_layer = get_norm_layer(norm_type=norm)
+    if net_d == 'basic':  # default PatchGAN classifier
+        net = NLayerDiscriminator(input_nc, ndf, n_layers=3, norm_layer=norm_layer)
+    elif net_d == 'n_layers':  # more options
+        net = NLayerDiscriminator(input_nc, ndf, n_layers_d, norm_layer=norm_layer)
+    else:
+        raise NotImplementedError('Discriminator model name [{}] is not recognized'.format(net_d))
+    return init_net(net, init_type, init_gain, gpu_ids)
+
+##############################################################################
+# Classes
+##############################################################################
+class GANLoss(nn.Module):
+    def __init__(self,
+                 gan_mode,
+                 target_real_label=1.0,
+                 target_fake_label=0.0):
+        """
+
+        :param gan_mode: lsgan
+        :param target_real_label:
+        :param target_fake_label:
+        """
+        super(GANLoss, self).__init__()
+        self.register_buffer('real_label', torch.tensor(target_real_label))
+        self.register_buffer('fake_label', torch.tensor(target_fake_label))
+        self.gan_mode = gan_mode
+        if gan_mode == 'lsgan':
+            self.loss = nn.MSELoss()
+        else:
+            raise NotImplementedError('gan_mode [{}] not implemented'.format(gan_mode))
+
+    def get_target_tensor(self, prediction, target_is_real):
+        """
+        Create label tensor
+        :param prediction:
+        :param target_is_real: true if label is for real images, false if for fakes
+        :return:
+        """
+        if target_is_real:
+            target_tensor = self.real_label
+        else:
+            target_tensor = self.fake_label
+        return target_tensor.expand_as(prediction)
+
+    def __call__(self, prediction, target_is_real):
+        """
+        calculate the loss
+        :param prediction:
+        :param target_is_real:
+        :return:
+        """
+        if self.gan_mode in 'lsgan':
+            target_tensor = self.get_target_tensor(prediction, target_is_real)
+            loss = self.loss(prediction, target_tensor)
+        else:
+            raise NotImplementedError('gan_mode [{}] not implemented'.format(self.gan_mode))
+        return loss

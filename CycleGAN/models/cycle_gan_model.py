@@ -39,21 +39,20 @@ class CycleGANModel(BaseModel):
         self.loss_names = []
         visual_names_A = ['real_A', 'fake_B', 'rec_A']
         visual_names_B = ['real_B', 'fake_A', 'rec_B']
-        if self.is_Train and self.opt.lambda_identity > 0.0:
+        if self.isTrain and self.opt.lambda_identity > 0.0:
             visual_names_A.append('idt_B')
             visual_names_B.append('idt_A')
 
-
         # Define network
-        self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
+        self.netG_A = networks.define_g(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-        self.netG_B = networks.define_G(opt.output_nc, opt.input_nc, opt.ngf, opt.netG, opt.norm,
+        self.netG_B = networks.define_g(opt.output_nc, opt.input_nc, opt.ngf, opt.netG, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
 
         if self.isTrain:  # define discriminators
-            self.netD_A = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
+            self.netD_A = networks.define_d(opt.output_nc, opt.ndf, opt.netD,
                                             opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
-            self.netD_B = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
+            self.netD_B = networks.define_d(opt.input_nc, opt.ndf, opt.netD,
                                             opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
 
 
@@ -76,16 +75,29 @@ class CycleGANModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
 
-    def set_input(self, input):
+        self.loss_D_A = None
+        self.loss_D_B = None
+        self.loss_idt_A = None
+        self.loss_idt_B = None
+        self.idt_A = None
+        self.idt_B = None
+        self.fake_A = None
+        self.fake_B = None
+        self.real_A = None
+        self.real_B = None
+        self.rec_A = None
+        self.rec_B = None
+
+    def set_input(self, _input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
         Parameters:
-            input (dict): include the data itself and its metadata information.
+            _input (dict): include the data itself and its metadata information.
         The option 'direction' can be used to swap domain A and domain B.
         """
-        AtoB = self.opt.direction == 'AtoB'
-        self.real_A = input['A' if AtoB else 'B'].to(self.device)
-        self.real_B = input['B' if AtoB else 'A'].to(self.device)
-        self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        A2B = self.opt.directio in ['A2B', 'AtoB']
+        self.real_A = _input['A' if A2B else 'B'].to(self.device)
+        self.real_B = _input['B' if A2B else 'A'].to(self.device)
+        self.image_paths = _input['A_paths' if A2B else 'B_paths']
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -94,7 +106,7 @@ class CycleGANModel(BaseModel):
         self.fake_A = self.netG_B(self.real_B)  # G_B(B)
         self.rec_B = self.netG_A(self.fake_A)  # G_A(G_B(B))
 
-    def backward_D_basic(self, netD, real, fake):
+    def backward_D_basic(self, net_D, real, fake):
         """Calculate GAN loss for the discriminator
         Parameters:
             netD (network)      -- the discriminator D
@@ -104,10 +116,10 @@ class CycleGANModel(BaseModel):
         We also call loss_D.backward() to calculate the gradients.
         """
         # Real
-        pred_real = netD(real)
+        pred_real = net_D(real)
         loss_D_real = self.criterionGAN(pred_real, True)
         # Fake
-        pred_fake = netD(fake.detach())
+        pred_fake = net_D(fake.detach())
         loss_D_fake = self.criterionGAN(pred_fake, False)
         # Combined loss and calculate gradients
         loss_D = (loss_D_real + loss_D_fake) * 0.5
@@ -116,11 +128,57 @@ class CycleGANModel(BaseModel):
 
     def backward_D_A(self):
         """Calculate GAN loss for discriminator D_A"""
-        fake_B = self.fake_B_pool.query(self.fake_B)
-        self.loss_D_A = self.backward_D_basic(self.netD_A, self.real_B, fake_B)
+        self.loss_D_A = self.backward_D_basic(self.netD_A, self.real_B, self.fake_B)
 
     def backward_D_B(self):
         """Calculate GAN loss for discriminator D_B"""
-        fake_A = self.fake_A_pool.query(self.fake_A)
-        self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
+        self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, self.fake_A)
 
+    def backward_G(self):
+        """
+        loss of GA and GB
+        :return:
+        """
+        lambda_idt = self.opt.lambda_identity
+        lambda_A = self.opt.lambda_A
+        lambda_B = self.opt.lambda_B
+        if lambda_idt > 0:
+            # G_A should be identity if real_B is fed: ||G_A(B) - B||
+            self.idt_A = self.netG_A(self.real_B)
+            self.loss_idt_A = self.criterionIdt(self.idt_A, self.real_B) * lambda_B * lambda_idt
+            # G_B should be identity if real_A is fed: ||G_B(A) - A||
+            self.idt_B = self.netG_B(self.real_A)
+            self.loss_idt_B = self.criterionIdt(self.idt_B, self.real_A) * lambda_A * lambda_idt
+        else:
+            self.loss_idt_A = 0
+            self.loss_idt_B = 0
+
+        # GAN loss D_A(G_A(A))
+        self.loss_G_A = self.criterionGAN(self.netD_A(self.fake_B), True)
+        # GAN loss D_B(G_B(B))
+        self.loss_G_B = self.criterionGAN(self.netD_B(self.fake_A), True)
+        # Forward cycle loss || G_B(G_A(A)) - A||
+        self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
+        # Backward cycle loss || G_A(G_B(B)) - B||
+        self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
+        # combined loss and calculate gradients
+        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B
+        self.loss_G.backward()
+
+    def optimization(self):
+        """
+        Calculate Loss, and update Weights
+        :return:
+        """
+        self.forward()
+        self.set_requires_grad([self.netD_A, self.netD_B], False)
+        # G
+        self.optimizer_G.zero_grad()
+        self.backward_G()
+        self.optimizer_G.step()
+        # D
+        self.set_requires_grad([self.netD_A, self.netD_B], True)
+        self.optimizer_D.zero_grad()
+        self.backward_D_A()
+        self.backward_D_B()
+        self.optimizer_D.step()
