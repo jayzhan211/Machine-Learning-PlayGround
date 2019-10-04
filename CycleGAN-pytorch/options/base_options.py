@@ -3,7 +3,7 @@ import models
 import data
 import os
 import torch
-from util import util
+
 
 
 class BaseOptions:
