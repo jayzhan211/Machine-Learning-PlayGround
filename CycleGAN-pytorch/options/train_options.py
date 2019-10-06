@@ -1,8 +1,11 @@
 from .base_options import BaseOptions
 
+
 class TrainOptions(BaseOptions):
-    def initialize(self, parser):
-        parser = super(TrainOptions, self).initialize()
+    def __init__(self):
+        super().__init__()
+        self.isTrain = True
+        parser = self.parser
         parser.add_argument('--display_freq', type=int, default=400,
                             help='frequency of showing training results on screen')
         parser.add_argument('--display_ncols', type=int, default=4,
@@ -42,6 +45,4 @@ class TrainOptions(BaseOptions):
                             help='learning rate policy. [linear | step | plateau | cosine]')
         parser.add_argument('--lr_decay_iters', type=int, default=50,
                             help='multiply by a gamma every lr_decay_iters iterations')
-
-        self.isTrain = True
-        return parser
+        self.parser = parser

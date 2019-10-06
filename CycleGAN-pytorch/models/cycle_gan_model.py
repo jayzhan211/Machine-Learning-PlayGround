@@ -12,14 +12,14 @@ class CycleGANModel(BaseModel):
             is_train (bool) -- whether training phase or test phase. You can use this flag to add training-specific or test-specific options.
         Returns:
             the modified parser.
-        For CycleGAN, in addition to GAN losses, we introduce lambda_A, lambda_B, and lambda_identity for the following losses.
+        For CycleGAN-pytorch, in addition to GAN losses, we introduce lambda_A, lambda_B, and lambda_identity for the following losses.
         A (source domain), B (target domain).
         Generators: G_A: A -> B; G_B: B -> A.
         Discriminators: D_A: G_A(A) vs. B; D_B: G_B(B) vs. A.
         Forward cycle loss:  lambda_A * ||G_B(G_A(A)) - A|| (Eqn. (2) in the paper)
         Backward cycle loss: lambda_B * ||G_A(G_B(B)) - B|| (Eqn. (2) in the paper)
         Identity loss (optional): lambda_identity * (||G_A(B) - B|| * lambda_B + ||G_B(A) - A|| * lambda_A) (Sec 5.2 "Photo generation from paintings" in the paper)
-        Dropout is not used in the original CycleGAN paper.
+        Dropout is not used in the original CycleGAN-pytorch paper.
         """
         parser.set_defaults(no_dropout=True)
         if is_train:
@@ -31,7 +31,7 @@ class CycleGANModel(BaseModel):
         return parser
 
     def __init__(self, opt):
-        """Initialize the CycleGAN class.
+        """Initialize the CycleGAN-pytorch class.
         Parameters:
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """

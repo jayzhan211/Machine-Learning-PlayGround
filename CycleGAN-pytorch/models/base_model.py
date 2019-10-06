@@ -22,19 +22,24 @@ class BaseModel(ABC):
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
 
         When creating your custom class, you need to implement your own initialization.
-        In this fucntion, you should first call <BaseModel.__init__(self, opt)>
+        In this function, you should first call <BaseModel.__init__(self, opt)>
         Then, you need to define four lists:
             -- self.loss_names (str list):          specify the training losses that you want to plot and save.
             -- self.model_names (str list):         specify the images that you want to display and save.
             -- self.visual_names (str list):        define networks used in our training.
-            -- self.optimizers (optimizer list):    define and initialize optimizers. You can define one optimizer for each network. If two networks are updated at the same time, you can use itertools.chain to group them. See cycle_gan_model.py for an example.
+            -- self.optimizers (optimizer list):    define and initialize optimizers. You can define one optimizer
+            for each network. If two networks are updated at the same time, you can use itertools.chain to group them.
+            See cycle_gan_model.py for an example.
         """
         self.opt = opt
         self.gpu_ids = opt.gpu_ids
         self.isTrain = opt.isTrain
-        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
-        self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)  # save all the checkpoints to save_dir
-        if opt.preprocess != 'scale_width':  # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
+        # get device name: CPU or GPU
+        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')
+        # save all the checkpoints to save_dir
+        self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)
+        # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
+        if opt.preprocess != 'scale_width':
             torch.backends.cudnn.benchmark = True
         self.loss_names = []
         self.model_names = []
@@ -42,6 +47,7 @@ class BaseModel(ABC):
         self.optimizers = []
         self.image_paths = []
         self.metric = 0  # used for learning rate policy 'plateau'
+        self.schedulers = None
 
     @staticmethod
     def modify_commandline_options(parser, is_train):
@@ -98,7 +104,7 @@ class BaseModel(ABC):
     def test(self):
         """Forward function used in test time.
 
-        This function wraps <forward> function in no_grad() so we don't save intermediate steps for backprop
+        This function wraps <forward> function in no_grad() so we don't save intermediate steps for back_propagation
         It also calls <compute_visuals> to produce additional visualization results
         """
         with torch.no_grad():
@@ -148,7 +154,7 @@ class BaseModel(ABC):
         """
         for name in self.model_names:
             if isinstance(name, str):
-                save_filename = '%s_net_%s.pth' % (epoch, name)
+                save_filename = '{}_net_{}.pth'.format(name, epoch)
                 save_path = os.path.join(self.save_dir, save_filename)
                 net = getattr(self, 'net' + name)
 

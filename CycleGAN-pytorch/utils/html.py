@@ -2,6 +2,7 @@ import dominate
 from dominate.tags import meta, h3, table, tr, td, br, p, img, a
 import os
 
+
 class HTML:
     def __init__(self, web_dir, title, refresh=0):
         """
@@ -30,16 +31,24 @@ class HTML:
         with self.doc:
             h3(text)
 
-    def add_images(self, image_paths, images_name, links, image_size=400):
-        self.t = table(border=1, style="table-layout: fixed;")  # Insert a table
-        self.doc.add(self.t)
-        with self.t:
+    def add_images(self, img_pths, images_name, hyper_link, image_size=400):
+        """
+        add images to html file
+        :param img_pths: (list)
+        :param images_name: (list) 
+        :param hyper_link:  (list)
+        :param image_size: 
+        :return: 
+        """
+        t = table(border=1, style="table-layout: fixed;")  # Insert a table
+        self.doc.add(t)
+        with t:
             with tr():
-                for img_path, img_name, link in zip(image_paths, images_name, links):
+                for img_pth, img_name, link in zip(img_pths, images_name, hyper_link):
                     with td(style="word-wrap: break-word;", halign="center", valign="top"):
                         with p():
                             with a(href=os.path.join('images', link)):
-                                img(style="width:{}px" .format(image_size) , src=os.path.join('images', img_path))
+                                img(style="width:{}px" .format(image_size), src=os.path.join('images', img_pth))
                             br()
                             p(img_name)
 
@@ -50,6 +59,7 @@ class HTML:
         f = open(html_file, 'wt')
         f.write(self.doc.render())
         f.close()
+
 
 if __name__ == '__main__':  # we show an example usage here.
     html = HTML('web/', 'test_html')

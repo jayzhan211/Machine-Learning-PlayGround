@@ -12,15 +12,16 @@ def find_model_using_name(model_name):
                 and issubclass(cls, BaseModel):
             model = cls
 
-
     if model is None:
         print('{} not found'.format(target_model_name))
         exit(0)
     return model
 
+
 def get_option_setter(model_name):
     model_class = find_model_using_name(model_name)
     return model_class.modify_commandline_options
+
 
 def create_model(opt):
     model = find_model_using_name(opt.model)
